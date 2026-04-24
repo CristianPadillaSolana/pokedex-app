@@ -4,6 +4,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface PokeApiService {
@@ -13,6 +14,11 @@ interface PokeApiService {
         @Query("limit") limit: Int = 20,
         @Query("offset") offset: Int = 0
     ): Response<PokemonListResponse>
+
+    @GET("pokemon/{id}")
+    suspend fun getPokemonDetail(
+        @Path("id") id: Int
+    ): Response<PokemonDetail>
 
     companion object {
         private const val BASE_URL = "https://pokeapi.co/api/v2/"

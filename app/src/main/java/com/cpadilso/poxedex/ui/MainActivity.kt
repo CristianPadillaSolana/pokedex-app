@@ -1,7 +1,7 @@
 package com.cpadilso.poxedex.ui
 
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -33,7 +33,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         adapter = PokemonAdapter { pokemon ->
-            Toast.makeText(this, "Clicked: ${pokemon.name}", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, DetailActivity::class.java)
+            intent.putExtra("pokemon_id", pokemon.id)
+            startActivity(intent)
         }
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -71,20 +73,20 @@ class MainActivity : AppCompatActivity() {
                             currentOffset += limit
                         }
                     } else {
-                        Toast.makeText(
+                        android.widget.Toast.makeText(
                             this@MainActivity,
                             "Error al cargar pokémon",
-                            Toast.LENGTH_SHORT
+                            android.widget.Toast.LENGTH_SHORT
                         ).show()
                     }
                     isLoading = false
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(
+                    android.widget.Toast.makeText(
                         this@MainActivity,
                         "Error: ${e.message}",
-                        Toast.LENGTH_SHORT
+                        android.widget.Toast.LENGTH_SHORT
                     ).show()
                     isLoading = false
                 }
