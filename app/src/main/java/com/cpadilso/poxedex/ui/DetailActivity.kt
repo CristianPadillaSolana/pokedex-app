@@ -1,6 +1,7 @@
 package com.cpadilso.poxedex.ui
 
 import android.os.Bundle
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -24,11 +25,18 @@ class DetailActivity : AppCompatActivity() {
         binding = ActivityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Configurar botón de volver
+        binding.btnBack.setOnClickListener {
+            finish()
+        }
+
         val pokemonId = intent.getIntExtra("pokemon_id", 1)
         loadPokemonDetail(pokemonId)
     }
 
     private fun loadPokemonDetail(id: Int) {
+        showLoading()
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = apiService.getPokemonDetail(id)
@@ -37,22 +45,17 @@ class DetailActivity : AppCompatActivity() {
                     if (response.isSuccessful) {
                         response.body()?.let { pokemon ->
                             displayPokemonDetail(pokemon)
+                            hideLoading()
                         }
                     } else {
-                        Toast.makeText(
-                            this@DetailActivity,
-                            "Error al cargar detalles",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showError("Error al cargar detalles")
+                        hideLoading()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        this@DetailActivity,
-                        "Error: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    showError("Error: ${e.message}")
+                    hideLoading()
                 }
             }
         }
@@ -98,5 +101,19 @@ class DetailActivity : AppCompatActivity() {
             }
             binding.llAbilities.addView(abilityView)
         }
+    }
+
+    private fun showLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.scrollView.visibility = View.GONE
+    }
+
+    private fun hideLoading() {
+        binding.progressBar.visibility = View.GONE
+        binding.scrollView.visibility = View.VISIBLE
+    }
+
+    private fun showError(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
