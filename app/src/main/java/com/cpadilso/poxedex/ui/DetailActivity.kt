@@ -19,6 +19,7 @@ class DetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailBinding
     private val apiService = PokeApiService.create()
+    private var currentPokemonId = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +31,17 @@ class DetailActivity : AppCompatActivity() {
             finish()
         }
 
-        val pokemonId = intent.getIntExtra("pokemon_id", 1)
-        loadPokemonDetail(pokemonId)
+        // Configurar botón de reintentar
+        binding.btnRetry.setOnClickListener {
+            loadPokemonDetail(currentPokemonId)
+        }
+
+        currentPokemonId = intent.getIntExtra("pokemon_id", 1)
+        loadPokemonDetail(currentPokemonId)
     }
 
     private fun loadPokemonDetail(id: Int) {
+        currentPokemonId = id
         showLoading()
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -49,13 +56,11 @@ class DetailActivity : AppCompatActivity() {
                         }
                     } else {
                         showError("Error al cargar detalles")
-                        hideLoading()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     showError("Error: ${e.message}")
-                    hideLoading()
                 }
             }
         }
@@ -105,15 +110,20 @@ class DetailActivity : AppCompatActivity() {
 
     private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE
+        binding.btnRetry.visibility = View.GONE
         binding.scrollView.visibility = View.GONE
     }
 
     private fun hideLoading() {
         binding.progressBar.visibility = View.GONE
+        binding.btnRetry.visibility = View.GONE
         binding.scrollView.visibility = View.VISIBLE
     }
 
     private fun showError(message: String) {
+        binding.progressBar.visibility = View.GONE
+        binding.scrollView.visibility = View.GONE
+        binding.btnRetry.visibility = View.VISIBLE
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
